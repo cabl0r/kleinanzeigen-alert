@@ -4,13 +4,12 @@ import (
 	"errors"
 	"time"
 
-	"github.com/rs/zerolog/log"
-
 	"github.com/danielstefank/kleinanzeigen-alert/pkg/model"
 	"github.com/danielstefank/kleinanzeigen-alert/pkg/scraper"
 	"github.com/jinzhu/gorm"
+	"github.com/rs/zerolog/log"
 
-	// import for the database driver
+	// Import for the database driver
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
 
@@ -19,7 +18,7 @@ type Storage struct {
 	db *gorm.DB
 }
 
-// NewStorage creates a new Storage
+// NewStorage creates a new Storage instance
 func NewStorage() *Storage {
 	s := new(Storage)
 	db, err := gorm.Open("sqlite3", "/tmp/alert.db")
@@ -37,13 +36,13 @@ func NewStorage() *Storage {
 	return s
 }
 
-//CloseDB closes the created tb connection
+// CloseDB closes the created database connection
 func (s *Storage) CloseDB() {
 	log.Info().Msg("closing database")
 	s.db.Close()
 }
 
-// AddNewQuery adds a new query to the db
+// AddNewQuery adds a new query to the database
 func (s *Storage) AddNewQuery(term string, city string, radius int, price *int, minPrice *int, chatID int64) (*model.Query, error) {
 	cityID, cityName, err := scraper.FindCityID(city)
 
@@ -52,8 +51,6 @@ func (s *Storage) AddNewQuery(term string, city string, radius int, price *int, 
 	}
 
 	query := model.Query{ChatID: chatID, Term: term, Radius: radius, City: cityID, CityName: cityName, MaxPrice: price, MinPrice: minPrice}
-
-	//s.db.NewRecord(query)
 
 	err = s.db.Create(&query).Error
 
@@ -73,7 +70,7 @@ func (s *Storage) AddNewQuery(term string, city string, radius int, price *int, 
 	return &query, nil
 }
 
-// GetQueries gets all the queries from the db
+// GetQueries gets all the queries from the database
 func (s *Storage) GetQueries() []model.Query {
 	queries := make([]model.Query, 0, 0)
 	err := s.db.Find(&queries).Error
@@ -86,7 +83,7 @@ func (s *Storage) GetQueries() []model.Query {
 	return queries
 }
 
-// ListForChatID gets all the queries for specified chatId
+// ListForChatID gets all the queries for a specified chatID
 func (s *Storage) ListForChatID(chatID int64) []model.Query {
 	queries := make([]model.Query, 0, 0)
 	err := s.db.Where(&model.Query{ChatID: chatID}).Find(&queries).Error
@@ -99,20 +96,20 @@ func (s *Storage) ListForChatID(chatID int64) []model.Query {
 	return queries
 }
 
-// FindQueryByID find a query by the given id
+// FindQueryByID finds a query by the given ID
 func (s *Storage) FindQueryByID(id uint) *model.Query {
 	q := model.Query{}
 	err := s.db.Where("id = ?", id).First(&q).Error
 
 	if err != nil {
-		log.Error().Err(err).Msg("could not get a query by id")
+		log.Error().Err(err).Msg("could not get a query by ID")
 		return &q
 	}
 
 	return &q
 }
 
-// RemoveByID removes a query by id
+// RemoveByID removes a query by ID
 func (s *Storage) RemoveByID(id uint, chatID int64) *model.Query {
 	q := s.FindQueryByID(id)
 
@@ -125,14 +122,15 @@ func (s *Storage) RemoveByID(id uint, chatID int64) *model.Query {
 	return q
 }
 
-// RemoveByChatID removes all queries for a chat id
+// RemoveByChatID removes all queries for a chatID
 func (s *Storage) RemoveByChatID(chatID int64) (int, error) {
 	trx := s.db.Where(&model.Query{ChatID: chatID}).Delete(&model.Query{})
 
 	return int(trx.RowsAffected), trx.Error
 }
 
-//GetLatest fetches the latest ads from kleinanzeigen. All ads where the id is not in the db is returned and the db is updated with the latest ads
+// GetLatest fetches the latest ads from kleinanzeigen. All ads where the ID is not in the database are returned,
+// and the database is updated with the latest ads
 func (s *Storage) GetLatest(id uint) []scraper.Ad {
 	q := s.FindQueryByID(id)
 
@@ -147,7 +145,7 @@ func (s *Storage) GetLatest(id uint) []scraper.Ad {
 	return diff
 }
 
-// DeleteOlderAds deletes all ads older that 7 days
+// DeleteOlderAds deletes all ads older than 7 days
 func (s *Storage) DeleteOlderAds() (int64, error) {
 	trx := s.db.Where("created_at < ?", time.Now().AddDate(0, 0, -7)).Delete(model.Ad{})
 	if trx.Error != nil {

@@ -11,20 +11,19 @@ import (
 
 	"github.com/danielstefank/kleinanzeigen-alert/pkg/model"
 	"github.com/danielstefank/kleinanzeigen-alert/pkg/scraper"
-
 	"github.com/danielstefank/kleinanzeigen-alert/pkg/storage"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-// Bot will store the token the internal telegram bto and the storage
+// Bot will store the token, the internal telegram bot, and the storage.
 type Bot struct {
 	token       string
 	internalBot *tgbotapi.BotAPI
 	storage     *storage.Storage
 }
 
-// CreateBot will create a new bot with the given token and storage
+// CreateBot will create a new bot with the given token and storage.
 func CreateBot(token string, storage *storage.Storage) *Bot {
 	bot := new(Bot)
 	bot.token = token
@@ -32,7 +31,7 @@ func CreateBot(token string, storage *storage.Storage) *Bot {
 	return bot
 }
 
-// Init will create the internal bot
+// Init will create the internal bot.
 func (b *Bot) Init() {
 	bot, err := tgbotapi.NewBotAPI(b.token)
 
@@ -44,7 +43,7 @@ func (b *Bot) Init() {
 	}
 }
 
-// Start starts the bot and listens for commands this will not return
+// Start starts the bot and listens for commands. This function will not return.
 func (b *Bot) Start() {
 	lastUpdateID := -1
 
@@ -55,13 +54,13 @@ func (b *Bot) Start() {
 		updates, err := b.internalBot.GetUpdatesChan(u)
 
 		if err != nil {
-			log.Error().Err(err).Msg("could not get latetst message updates for telegram bot")
+			log.Error().Err(err).Msg("could not get latest message updates for telegram bot")
 			continue
 		}
 
 		for update := range updates {
 
-			if update.Message == nil { // ignore any non-Message updates
+			if update.Message == nil { // Ignore any non-Message updates.
 				continue
 			}
 
@@ -87,7 +86,7 @@ func (b *Bot) Start() {
 					q, success := getQueryFromArgs(update.Message.CommandArguments(), update.Message.Chat.ID, b.storage)
 
 					if !success {
-						msg = "Um eine Suche hinzuzufügen schreibe <code>/add {Suchbegriff}, {Stadt/PLZ}, {Radius}, {Max Preis ohne \"€\", \",\",\".\"}, {Min Preis ohne \"€\", \",\",\".\"}?</code>"
+						msg = "Um eine Suche hinzuzufügen, schreibe <code>/add {Suchbegriff}, {Stadt/PLZ}, {Radius}, {Max Preis ohne \"€\", \",\",\".\"}, {Min Preis ohne \"€\", \",\",\".\"}?</code>"
 					} else {
 						msg = fmt.Sprintf("Suche für <b>%s</b> in <b>%s</b> hinzugefügt. ID: <b>%d</b>", q.Term, q.CityName, q.ID)
 						log.Info().
@@ -106,7 +105,7 @@ func (b *Bot) Start() {
 					args := update.Message.CommandArguments()
 
 					if len(args) == 0 {
-						msg = "Um zu entfernen schreibe <code>/remove {ID}</code>. Die ID bekommst du vom <code>/list</code> Befehl."
+						msg = "Um zu entfernen, schreibe <code>/remove {ID}</code>. Die ID bekommst du vom <code>/list</code> Befehl."
 					} else {
 						id, err := strconv.ParseUint(strings.Trim(args, " "), 10, 0)
 
@@ -144,7 +143,7 @@ func (b *Bot) Start() {
 	}
 }
 
-// SendAds send the given ad the the given chatId
+// SendAds sends the given ads to the given chatID.
 func (b *Bot) SendAds(chatID int64, ads []scraper.Ad, q model.Query) error {
 	for _, ad := range ads {
 		err := b.sendMsg(formatAd(ad, q.Term, int(q.ID)), formatAdRaw(ad, q.Term, int(q.ID)), chatID)
@@ -158,8 +157,8 @@ func (b *Bot) SendAds(chatID int64, ads []scraper.Ad, q model.Query) error {
 func (b *Bot) sendQueries(chatID int64, queries []model.Query) {
 	if len(queries) == 0 {
 		b.sendMsg(
-			"Keine Suchen gefunden. Füge ein mit <code>/add</code> hinzu.",
-			"Keine Suchen gefunden. Füge ein mit /add hinzu.",
+			"Keine Suchen gefunden. Füge eine mit <code>/add</code> hinzu.",
+			"Keine Suchen gefunden. Füge eine mit /add hinzu.",
 			chatID)
 	} else {
 		for _, q := range queries {
@@ -190,7 +189,7 @@ func (b *Bot) sendMsg(msg string, raw string, chatID int64) error {
 		}
 
 		if strings.HasPrefix(err.Error(), "Bad Request: can't parse entities") {
-			log.Info().Str("msg", telegramMessage.Text).Msg("msg has invalid html. trying to send raw data.")
+			log.Info().Str("msg", telegramMessage.Text).Msg("msg has invalid HTML. trying to send raw data.")
 			telegramMessage := tgbotapi.NewMessage(chatID, raw)
 
 			_, err := b.internalBot.Send(telegramMessage)
@@ -321,19 +320,19 @@ func generateHelpText() string {
 	var b strings.Builder
 	f := fmt.Sprintf
 	b.WriteString(f("<u>Hinzufügen von Suchen</u>\n"))
-	b.WriteString(f("schreibe <code>/add {Suchbegriff}, {Stadt/PLZ}, {Radius}, {Max Preis ohne \"€\", \",\",\".\"}?, {Min Preis ohne \"€\", \",\",\".\"}?</code>\n"))
-	b.WriteString(f("z.B. <code>/add Fahrrad, Köln, 20</code>\n"))
-	b.WriteString(f("Dies führt jede minute eine Suche aus und du kommst die neuesten Einträge hier.\n"))
+	b.WriteString(f("Schreibe <code>/add {Suchbegriff}, {Stadt/PLZ}, {Radius}, {Max Preis ohne \"€\", \",\",\".\"}?, {Min Preis ohne \"€\", \",\",\".\"}?</code>\n"))
+	b.WriteString(f("Z.B. <code>/add Fahrrad, Köln, 20</code>\n"))
+	b.WriteString(f("Dies führt jede Minute eine Suche aus, und du bekommst die neuesten Einträge hier.\n"))
 
 	b.WriteString(f("\n"))
-	b.WriteString(f("<u>Listen von alles Suchen</u>\n"))
-	b.WriteString(f("schreibe <code>/list</code>\n"))
-	b.WriteString(f("Dies listet alle deine aktuellen Suchen\n"))
+	b.WriteString(f("<u>Listen von allen Suchen</u>\n"))
+	b.WriteString(f("Schreibe <code>/list</code>\n"))
+	b.WriteString(f("Dies listet alle deine aktuellen Suchen.\n"))
 
 	b.WriteString(f("\n"))
 	b.WriteString(f("<u>Entfernen von Suchen</u>\n"))
-	b.WriteString(f("schreibe <code>/remove {ID}</code>\n"))
-	b.WriteString(f("Die ID erhältst du aus dem List Befehl. Dies Löscht die Suche und du erhältst für sie keine Nachrichten mehr.\n"))
+	b.WriteString(f("Schreibe <code>/remove {ID}</code>\n"))
+	b.WriteString(f("Die ID erhältst du aus dem List Befehl. Dies löscht die Suche, und du erhältst für sie keine Nachrichten mehr.\n"))
 
 	return b.String()
 }
