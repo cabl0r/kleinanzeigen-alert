@@ -8,10 +8,10 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
-	"github.com/danielstefank/kleinanzeigen-alert/pkg/model"
+	"github.com/cabl0r/kleinanzeigen-alert/pkg/model"
 
-	"github.com/danielstefank/kleinanzeigen-alert/pkg/storage"
-	"github.com/danielstefank/kleinanzeigen-alert/pkg/telegram"
+	"github.com/cabl0r/kleinanzeigen-alert/pkg/storage"
+	"github.com/cabl0r/kleinanzeigen-alert/pkg/telegram"
 )
 
 var token string

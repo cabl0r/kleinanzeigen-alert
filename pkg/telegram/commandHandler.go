@@ -9,9 +9,9 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"github.com/danielstefank/kleinanzeigen-alert/pkg/model"
-	"github.com/danielstefank/kleinanzeigen-alert/pkg/scraper"
-	"github.com/danielstefank/kleinanzeigen-alert/pkg/storage"
+	"github.com/cabl0r/kleinanzeigen-alert/pkg/model"
+	"github.com/cabl0r/kleinanzeigen-alert/pkg/scraper"
+	"github.com/cabl0r/kleinanzeigen-alert/pkg/storage"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )

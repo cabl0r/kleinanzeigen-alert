@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/danielstefank/kleinanzeigen-alert/pkg/model"
-	"github.com/danielstefank/kleinanzeigen-alert/pkg/scraper"
+	"github.com/cabl0r/kleinanzeigen-alert/pkg/model"
+	"github.com/cabl0r/kleinanzeigen-alert/pkg/scraper"
 	"github.com/jinzhu/gorm"
 	"github.com/rs/zerolog/log"
 

@@ -1,4 +1,4 @@
-module github.com/danielstefank/kleinanzeigen-alert
+module github.com/cabl0r/kleinanzeigen-alert
 
 go 1.16
 

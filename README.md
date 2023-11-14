@@ -11,14 +11,14 @@ Get your telegram token from [@botfarther](https://t.me/botfarther)
 Run with docker-compose:
 
 ```bash
-    git clone https://github.com/DanielStefanK/kleinanzeigen-alert.git alert && cd alert
+    git clone https://github.com/cabl0r/kleinanzeigen-alert.git alert && cd alert
     nano docker-compose.yaml //replace mytoken with your obtained token
     docker-compose up
 ```
 with go on your system:
 
 ```bash
-    git clone https://github.com/DanielStefanK/kleinanzeigen-alert.git alert && cd alert
+    git clone https://github.com/cabl0r/kleinanzeigen-alert.git alert && cd alert
     export TELEGRAM_APITOKEN=mytoken //replace mytoken with your obtained token
     go get
     go run main.go
@@ -41,4 +41,4 @@ You get the ID from the list command. This will delete the search and you will n
 
 
 ## Author
-- [@DanielStefanK](https://github.com/DanielStefanK)
+- [@cabl0r](https://github.com/cabl0r)
